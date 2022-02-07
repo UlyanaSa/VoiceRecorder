@@ -27,5 +27,5 @@ interface RecordDatabaseDAO {
     fun getAllRecord(): LiveData<MutableList<RecordingItem>> // возвращает все хаписи таблицы и записывает их в LiveData
 
     @Query("SELECT COUNT (*) FROM recording_table")
-    fun getCount():LiveData<Int> // возвращает количество записей
+    fun getCount():Int // возвращает количество записей
 }
