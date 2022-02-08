@@ -22,7 +22,7 @@ abstract class RecordDatabase: RoomDatabase() {
 
         fun getInstance(context: Context): RecordDatabase {
             synchronized(this){ // метод будет защищен от выполнения сразу несколькими потоками
-                // он гарантирует инициализацию баззы данных только в одном потоке
+                // он гарантирует инициализацию базы данных только в одном потоке
                 var instance = INSTANCE
                 if (instance == null){
                     instance = Room.databaseBuilder(

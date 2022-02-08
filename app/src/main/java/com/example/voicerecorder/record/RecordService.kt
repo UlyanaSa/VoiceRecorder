@@ -31,18 +31,17 @@ class RecordService:Service() {
     private var mRecorder: MediaRecorder? = null // для записи звука
 
     private var mStartingTimeMillis: Long = 0
-    private var mElapsedTimeMillis: Long = 0
-    private var mIncrementTimerTask: TimerTask? = null
+    private var mElapsedTimeMillis: Long = 0 // прошедшее время
 
     private var mRecordDatabase: RecordDatabaseDAO? = null
     private val mJob = Job() // фоновая работа корутины
-    private val mUiScope = CoroutineScope(Dispatchers.Main+mJob) // ui скоп, в который мы передаем наш потом потом к главному потоку
-    private val CHANNEL_ID: String = "RecordService"
+    private val mUiScope = CoroutineScope(Dispatchers.Main+mJob) // ui скоп, в который мы передаем наш поток к главному потоку
+    private val CHANNEL_ID: String = getString(R.string.notification_channel_id)
 
 
 
-    override fun onBind(p0: Intent?): IBinder? {
-       return null
+    override fun onBind(p0: Intent?): IBinder? { // возвращает интерфейс для связи клиентов с сервисом
+       return null // нам не нужно, поэтому отправляем nuul
     }
 
     override fun onCreate() {
@@ -70,7 +69,7 @@ class RecordService:Service() {
         try{
             mRecorder?.prepare() // подготовка
             mRecorder?.start()
-            mStartingTimeMillis = System.currentTimeMillis()
+            mStartingTimeMillis = System.currentTimeMillis() // сохраняем текущее время
             startForeground(1, createNotification()) // запуск сервиса
         }catch (e: IOException){
             Log.e("RecordingService", "prepare failed")
