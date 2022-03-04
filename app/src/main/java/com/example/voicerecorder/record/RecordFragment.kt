@@ -1,60 +1,137 @@
 package com.example.voicerecorder.record
 
+import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
+import android.widget.Toast
+import androidx.core.content.ContextCompat
+import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
+import com.example.voicerecorder.MainActivity
 import com.example.voicerecorder.R
+import com.example.voicerecorder.database.RecordDatabase
+import com.example.voicerecorder.database.RecordDatabaseDAO
+import com.example.voicerecorder.databinding.FragmentRecordBinding
+import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.floatingactionbutton.FloatingActionButton
+import java.io.File
+import java.util.jar.Manifest
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
-
-/**
- * A simple [Fragment] subclass.
- * Use the [RecordFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class RecordFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
-    }
-
+    private lateinit var viewModel: RecordViewModel
+    private lateinit var mainActivity: MainActivity
+    private var database: RecordDatabaseDAO? = null
+    private val MY_PERMISSIONS_RECORD_AUDIO = 123
+    private lateinit var binding: FragmentRecordBinding
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_record, container, false)
+        binding = DataBindingUtil.inflate(
+        inflater,
+        R.layout.fragment_record,
+        container,
+        false)
+
+        database = context?.let{ RecordDatabase.getInstance(it).recordDatabaseDAO}
+        mainActivity = activity as MainActivity
+        viewModel = ViewModelProvider(this).get(RecordViewModel::class.java)
+        binding.recordViewModel = viewModel
+        binding.lifecycleOwner = this.viewLifecycleOwner // определяем владельца жизненного цикла
+        val botton = binding.playButton
+        if(!mainActivity.isServiceRunning()){
+            viewModel.resetTimer()
+        }else{
+            binding.playButton.setImageResource(R.drawable.ic_stop_24)
+        }
+
+        binding.playButton.setOnClickListener {
+            if (ContextCompat.checkSelfPermission(requireContext(),
+                    android.Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED){
+            requestPermissions(
+                arrayOf(android.Manifest.permission.RECORD_AUDIO),MY_PERMISSIONS_RECORD_AUDIO
+            )
+        }else{
+                if(mainActivity.isServiceRunning()){
+                    onRecord(false)
+                    binding.playButton.setImageResource(R.drawable.ic_mic_white)
+                    viewModel.stopTimer()
+                }else{
+                    onRecord(true)
+                    binding.playButton.setImageResource(R.drawable.ic_stop_24)
+                    viewModel.startTimer()
+                }
+        }
+        }
+        createChannel(
+            getString(R.string.notification_channel_id),
+            getString(R.string.notification_channel_name)
+            )
+        return binding.root
+    }
+    private fun onRecord(start: Boolean){
+        val intent: Intent = Intent(activity, RecordService::class.java)
+
+        if(start){
+            Toast.makeText(activity,R.string.toast_recording_start, Toast.LENGTH_SHORT).show()
+            val folder = File(activity?.getExternalFilesDir(null)?.
+            absolutePath.toString() + "/VoiceRecorder")
+
+            if(!folder.exists()){
+                folder.mkdir()
+            }
+            activity?.startService(intent)
+            activity?.window?.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        }else{
+            activity?.stopService(intent)
+            activity?.window?.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        }
     }
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment RecordFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            RecordFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        when(requestCode){
+            MY_PERMISSIONS_RECORD_AUDIO -> {
+                if(grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                    onRecord(true)
+                    viewModel.startTimer()
+                }else{
+                    Toast.makeText(activity,getString(R.string.toast_recording_permissions),Toast.LENGTH_SHORT).show()
                 }
             }
+        }
     }
+    private fun createChannel(channelId:String, channelName:String){
+        //все уведомления рапределены по каналам, чтобы обеспечить тонкую настройку уведомлений
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+            val notificationChannel = NotificationChannel(
+                channelId,
+                channelName,
+                NotificationManager.IMPORTANCE_DEFAULT
+            ).apply {
+                setShowBadge(false)
+                setSound(null, null)
+            }
+            val notificationManager = requireActivity().getSystemService(
+                NotificationManager::class.java
+            )
+            notificationManager.createNotificationChannel(notificationChannel)
+        }
+    }
+
 }

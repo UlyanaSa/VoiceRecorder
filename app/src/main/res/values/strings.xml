@@ -16,11 +16,8 @@
     <string name="dialog_action_no">No</string>
 
     <string name="toast_recording_permissions">Recording without permission is prohibited</string>
-    <string name="notification_channel_id" translatable="false">RecordingService</string>
-    <string name="notification_channel_name" translatable="false">Recorder</string>
-
-
-
+    <string name="notification_channel_id" translatable="false">RecordingServiceOsvin</string>
+    <string name="notification_channel_name" translatable="false">RecorderOsvin</string>
 
 
 </resources>

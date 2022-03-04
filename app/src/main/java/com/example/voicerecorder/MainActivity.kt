@@ -7,26 +7,28 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.navigation.Navigation
 import androidx.navigation.ui.NavigationUI
-import com.example.voicerecorder.databinding.ActivityMainBinding
+import com.google.android.material.bottomnavigation.BottomNavigationView
+
 
 class MainActivity : AppCompatActivity() {
-    lateinit var bind: ActivityMainBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        bind  = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(bind.root)
+        setContentView(R.layout.activity_main)
+        val bottomNavigation = findViewById<BottomNavigationView>(R.id.bottom_nav_menu)
+        NavigationUI.setupWithNavController(bottomNavigation,
+            Navigation.findNavController(this, R.id.nav_host_fragment_container)
+        )
 
-        NavigationUI.setupWithNavController(bind.bottomNavMenu,
-            Navigation.findNavController(this, R.id.nav_host_fragment_container))
 
-        fun isServiceRunning():Boolean{
-            val manager = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager // проверка запуска сервиса
-            for (service in manager.getRunningServices(Int.MAX_VALUE)) {
-                if("com.example.voicerecorder.record.RecordService" == service.service.className){
-                    return true
-                }
-            }
-            return false
         }
+    fun isServiceRunning():Boolean{
+        val manager = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager // проверка запуска сервиса
+        for (service in manager.getRunningServices(Int.MAX_VALUE)) {
+            if("com.example.voicerecorder.record.RecordService" == service.service.className){
+                return true
+            }
+        }
+        return false
     }
 }

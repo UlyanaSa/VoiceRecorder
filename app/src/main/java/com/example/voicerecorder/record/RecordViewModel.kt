@@ -2,7 +2,6 @@ package com.example.voicerecorder.record
 
 import android.app.Application
 import android.content.Context
-import android.content.SharedPreferences
 import android.os.CountDownTimer
 import android.os.SystemClock
 import androidx.lifecycle.AndroidViewModel
@@ -34,7 +33,7 @@ class RecordViewModel(private val app: Application): AndroidViewModel(app) {
         resetTimer()
     }
 
-    fun triggerTime(){
+    fun startTimer(){
         val triggerTime = SystemClock.elapsedRealtime() // время с начала запуска системы
         viewModelScope.launch {
             saveTime(triggerTime)
@@ -65,6 +64,7 @@ class RecordViewModel(private val app: Application): AndroidViewModel(app) {
     private suspend fun saveTime(triggerTime: Long) =
         withContext(Dispatchers.IO){
             prefs.edit().putLong(TRIGGER_TIME,triggerTime).apply()
+            //suspend - функции остановки, поскольку могут приостановить выполнение корутин, чтобы дождаться результата
     }
 
     private suspend fun loadTime(): Long =
