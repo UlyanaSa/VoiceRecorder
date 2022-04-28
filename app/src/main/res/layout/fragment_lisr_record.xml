@@ -1,16 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".listrecord.LisrRecordFragment">
+<data>
+    <variable
+        name="listRecorderViewModel"
+        type="com.example.voicerecorder.listrecord.ListRecordViewModel" />
+</data>
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/list"
-        android:textSize="20dp"
-        />
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="60dp">
 
-</FrameLayout>
+  <androidx.recyclerview.widget.RecyclerView
+      class="androidx.appcompat.app.AlertController$RecycleListView"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:id="@+id/recyclerView"/>
+    </RelativeLayout>
+
+</layout>

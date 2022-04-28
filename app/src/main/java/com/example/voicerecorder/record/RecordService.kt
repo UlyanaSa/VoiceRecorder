@@ -41,7 +41,7 @@ class RecordService:Service() {
 
 
     override fun onBind(p0: Intent?): IBinder? { // возвращает интерфейс для связи клиентов с сервисом
-       return null // нам не нужно, поэтому отправляем nuul
+       return null // нам не нужно, поэтому отправляем null
     }
 
     override fun onCreate() {

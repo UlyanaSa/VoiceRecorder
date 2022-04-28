@@ -49,7 +49,6 @@ class RecordFragment : Fragment() {
         viewModel = ViewModelProvider(this).get(RecordViewModel::class.java)
         binding.recordViewModel = viewModel
         binding.lifecycleOwner = this.viewLifecycleOwner // определяем владельца жизненного цикла
-        val botton = binding.playButton
         if(!mainActivity.isServiceRunning()){
             viewModel.resetTimer()
         }else{
@@ -84,7 +83,7 @@ class RecordFragment : Fragment() {
         val intent: Intent = Intent(activity, RecordService::class.java)
 
         if(start){
-            Toast.makeText(activity,R.string.toast_recording_start, Toast.LENGTH_SHORT).show()
+            Toast.makeText(activity,getString(R.string.toast_recording_start), Toast.LENGTH_SHORT).show()
             val folder = File(activity?.getExternalFilesDir(null)?.
             absolutePath.toString() + "/VoiceRecorder")
 

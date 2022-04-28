@@ -9,10 +9,18 @@
         android:id="@+id/lisrRecordFragment"
         android:name="com.example.voicerecorder.listrecord.LisrRecordFragment"
         android:label="fragment_lisr_record"
-        tools:layout="@layout/fragment_lisr_record" />
+        tools:layout="@layout/fragment_lisr_record" >
+        <action
+            android:id="@+id/action_lisrRecordFragment_to_recordFragment"
+            app:destination="@id/recordFragment" />
+    </fragment>
     <fragment
         android:id="@+id/recordFragment"
         android:name="com.example.voicerecorder.record.RecordFragment"
         android:label="fragment_record"
-        tools:layout="@layout/fragment_record" />
+        tools:layout="@layout/fragment_record" >
+        <action
+            android:id="@+id/action_recordFragment_to_lisrRecordFragment"
+            app:destination="@id/lisrRecordFragment" />
+    </fragment>
 </navigation>
