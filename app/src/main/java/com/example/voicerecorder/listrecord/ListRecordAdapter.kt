@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.voicerecorder.R
 import com.example.voicerecorder.database.RecordingItem
 import com.example.voicerecorder.player.PlayerFragment
+import com.example.voicerecorder.removeDialog.RemoveDialogFragment
 import java.io.File
 import java.lang.Exception
 import java.sql.Time
@@ -66,6 +67,11 @@ class ListRecordAdapter:RecyclerView.Adapter<ListRecordAdapter.ViewHolder>() {
                 Toast.makeText(context, "Аудиофайл не найден", Toast.LENGTH_SHORT).show()
             }
         }
+        holder.cardView.setOnLongClickListener {
+            removeItemDialog(recordingItem, context)
+            false
+        }
+
 
     }
 
@@ -78,5 +84,20 @@ class ListRecordAdapter:RecyclerView.Adapter<ListRecordAdapter.ViewHolder>() {
             .beginTransaction()
         playerFragment.show(transaction, "dialog_playback")
 
+    }
+    private fun removeItemDialog(
+        recordingItem: RecordingItem,
+        context: Context?
+    ) {
+        val removeDialogFragment: RemoveDialogFragment =
+            RemoveDialogFragment()
+                .newInstance(
+                    recordingItem.id,
+                    recordingItem.filePath)
+        val transaction: FragmentTransaction =
+            (context as FragmentActivity)
+                .supportFragmentManager
+                .beginTransaction()
+        removeDialogFragment.show(transaction, "dialog_remove")
     }
 }
